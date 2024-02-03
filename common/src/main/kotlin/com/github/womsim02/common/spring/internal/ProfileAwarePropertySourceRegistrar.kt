@@ -13,9 +13,11 @@ import org.springframework.core.Ordered
 import org.springframework.core.PriorityOrdered
 import org.springframework.core.env.ConfigurableEnvironment
 import org.springframework.core.env.Environment
+import org.springframework.core.env.PropertiesPropertySource
 import org.springframework.core.io.ResourceLoader
 import org.springframework.core.type.classreading.CachingMetadataReaderFactory
 import org.springframework.core.type.classreading.MetadataReaderFactory
+import java.util.Properties
 
 /**
  * [ProfileAwarePropertySource] 어노테이션을 해석하여 스프링 부트 속성으로 등록하는 [BeanDefinitionRegistryPostProcessor].
@@ -49,6 +51,19 @@ internal class ProfileAwarePropertySourceRegistrar :
     // does nothing
     override fun postProcessBeanFactory(beanFactory: ConfigurableListableBeanFactory) { }
 
+    /**
+     * [BeanDefinitionRegistry]에 등록된 모든 빈에 대하여 [parse] 함수를 호출한 후 결과 [ProfileAwarePropertySourceHolder]에
+     * 대해 [ConfigurationClassPostProcessor.processConfigBeanDefinitions]의 나머지 과정을 거친다.
+     *
+     * 1. [ProfileAwarePropertySource.locations]을 실제 리소스 경로로 변환.
+     * 2. 1의 결과값 경로에 위치한 YAML 형식의 리소스를 읽어들여 [Properties] 생성.
+     * 3. 2로부터 [PropertiesPropertySource] 생성 후 스프링 부트 속성으로 등록.
+     * 4. 중복 생성을 방지하기 위하여 [processedConfigurationClasses]에 빈 클래스 등록.
+     *
+     * @see ConfigurationClassPostProcessor.processConfigBeanDefinitions
+     * @see org.springframework.context.annotation.ConfigurationClassParser.processConfigurationClass
+     * @see org.springframework.context.annotation.ConfigurationClassParser.processPropertySource
+     */
     override fun postProcessBeanDefinitionRegistry(registry: BeanDefinitionRegistry) {
         // `environment`에 값이 지정되지 않았으면 아무런 작업도 진행하지 않는다.
         if (!this::environment.isInitialized) return
@@ -62,6 +77,28 @@ internal class ProfileAwarePropertySourceRegistrar :
         // 만약 스프링 부트 속성으로 등록 가능한 `ProfileAwarePropertySource` 어노테이션이 달린 빈이 없으면
         // 추가 작업을 진행하지 않는다.
         if (propertySourceHolders.isEmpty()) return
+
+        // `propertySourceHolders`의 빈에 대하여 스프링 부트 속성 등록 과정을 진행한다.
+        for (holder in propertySourceHolders) {
+            // `ProfileAwarePropertySource.locations` 값을 실제 리소스 경로로 변환한다.
+            val resolvedLocations = ProfileAwarePropertySourceUtil.resolveLocations(
+                holder.annotation.locations,
+                environment.activeProfiles,
+            )
+
+            // `resolvedLocations`에 위치한 YAML 형식의 리소스를 읽어들인다.
+            val properties: Properties = ProfileAwarePropertySourceUtil.loadYamlProperties(
+                resolvedLocations,
+                resourceLoader,
+            )
+
+            // 읽어들인 속성으로부터 `PropertiesPropertySource`를 생성한 후 스프링 부트 속성으로 등록한다.
+            val propertySource = PropertiesPropertySource(holder.propertySourceName, properties)
+            environment.propertySources.addLast(propertySource)
+
+            // 스프링 부트 속성 중복 등록을 방지하기 위해 `processedConfigurationClasses`에 빈 클래스를 추가한다.
+            processedConfigurationClasses.add(holder.annotatedClass)
+        }
     }
 
     /**
