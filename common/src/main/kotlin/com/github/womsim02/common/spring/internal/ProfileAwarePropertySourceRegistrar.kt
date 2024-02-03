@@ -11,6 +11,7 @@ import org.springframework.context.annotation.ConfigurationClassPostProcessor
 import org.springframework.context.annotation.PropertySource
 import org.springframework.core.Ordered
 import org.springframework.core.PriorityOrdered
+import org.springframework.core.env.ConfigurableEnvironment
 import org.springframework.core.env.Environment
 import org.springframework.core.io.ResourceLoader
 import org.springframework.core.type.classreading.CachingMetadataReaderFactory
@@ -24,14 +25,20 @@ import org.springframework.core.type.classreading.MetadataReaderFactory
 internal class ProfileAwarePropertySourceRegistrar :
     BeanDefinitionRegistryPostProcessor, PriorityOrdered, EnvironmentAware, ResourceLoaderAware {
 
-    private lateinit var environment: Environment
+    /**
+     * [postProcessBeanDefinitionRegistry] 함수에서 스프링 부트 속성을 등록하려면 [ConfigurableEnvironment.getPropertySources]
+     * 함수를 통해 스프링 부트 속성에 접근해아 하므로 [ConfigurableEnvironment] 값만 설정할 수 있도록 한다.
+     */
+    private lateinit var environment: ConfigurableEnvironment
     private lateinit var resourceLoader: ResourceLoader
     private lateinit var metadataReaderFactory: MetadataReaderFactory
 
     private val processedConfigurationClasses: MutableSet<Class<*>> = mutableSetOf()
 
     override fun setEnvironment(environment: Environment) {
-        this.environment = environment
+        if (environment is ConfigurableEnvironment) {
+            this.environment = environment
+        }
     }
 
     override fun setResourceLoader(resourceLoader: ResourceLoader) {
@@ -43,7 +50,18 @@ internal class ProfileAwarePropertySourceRegistrar :
     override fun postProcessBeanFactory(beanFactory: ConfigurableListableBeanFactory) { }
 
     override fun postProcessBeanDefinitionRegistry(registry: BeanDefinitionRegistry) {
-        // TODO
+        // `environment`에 값이 지정되지 않았으면 아무런 작업도 진행하지 않는다.
+        if (!this::environment.isInitialized) return
+
+        // `registry`에 등록된 `bean` 정의로부터 `ProfileAwarePropertySourceHolder`를 추출한 후
+        // `ProfileAwarePropertySourceHolder.order` 값에 따라 정렬한다.
+        val propertySourceHolders = registry
+            .beanDefinitionNames
+            .mapNotNull { parse(it, registry) }
+            .sortedBy { it.order }
+        // 만약 스프링 부트 속성으로 등록 가능한 `ProfileAwarePropertySource` 어노테이션이 달린 빈이 없으면
+        // 추가 작업을 진행하지 않는다.
+        if (propertySourceHolders.isEmpty()) return
     }
 
     /**
