@@ -3,4 +3,14 @@ com:
     wonsim02:
       infra:
         mongodb:
-          retry-writes: false
+          retry-writes: ${CONF_MONGODB_RETRY_WRITES}
+
+spring:
+  data:
+    mongodb:
+      host: ${CONF_MONGODB_HOST}
+      port: ${CONF_MONGODB_PORT}
+      database: ${CONF_MONGODB_DATABASE}
+      username: ${CONF_MONGODB_USERNAME}
+      password: ${CONF_MONGODB_PASSWORD}
+      authentication-database: ${CONF_MONGODB_AUTHENTICATION_DATABASE:${spring.data.mongodb.database}}
