@@ -32,6 +32,7 @@ object MongoDatabaseUtils {
 
     /**
      * 추가로 정의한 Mongo 데이터베이스에 대한 `MongoDatabaseFactory` 빈의 이름을 생성한다.
+     * @see AdditionalMongoDatabasesRegistrar.registerBeansForSingleDatabase
      */
     fun genForMongoDatabaseFactory(database: String): String {
         return database.toCamelCase() + MONGO_DATABASE_FACTORY_POSTFIX
@@ -39,6 +40,7 @@ object MongoDatabaseUtils {
 
     /**
      * 추가로 정의한 Mongo 데이터베이스에 대한 `MappingMongoConverter` 빈의 이름을 생성한다.
+     * @see AdditionalMongoDatabasesRegistrar.registerBeansForSingleDatabase
      */
     fun genForMappingMongoConverter(database: String): String {
         return database.toCamelCase() + MAPPING_MONGO_CONVERTER_POSTFIX
@@ -46,6 +48,7 @@ object MongoDatabaseUtils {
 
     /**
      * 추가로 정의한 Mongo 데이터베이스에 대한 `MongoTemplate` 빈의 이름을 생성한다.
+     * @see AdditionalMongoDatabasesRegistrar.registerBeansForSingleDatabase
      */
     fun genForMongoTemplate(database: String): String {
         return database.toCamelCase() + MONGO_TEMPLATE_POSTFIX
@@ -55,6 +58,7 @@ object MongoDatabaseUtils {
      * [MongoDatabaseFactorySupport] 타입의 빈으로 사용될 객체를 생성한다.
      * @see org.springframework.boot.autoconfigure.data.mongo.MongoDatabaseFactoryConfiguration.mongoDatabaseFactory
      * @see com.github.wonsim02.infra.mongodb.config.PrimaryDatabaseConfiguration.mongoDatabaseFactory
+     * @see AdditionalMongoDatabasesRegistrar.registerBeansForSingleDatabase
      */
     fun buildMongoDatabaseFactory(
         mongoClient: MongoClient,
@@ -67,6 +71,7 @@ object MongoDatabaseUtils {
      * [MappingMongoConverter] 타입의 빈으로 사용될 객체를 생성한다.
      * @see org.springframework.boot.autoconfigure.data.mongo.MongoDatabaseFactoryDependentConfiguration.mappingMongoConverter
      * @see com.github.wonsim02.infra.mongodb.config.PrimaryDatabaseConfiguration.mappingMongoConverter
+     * @see AdditionalMongoDatabasesRegistrar.registerBeansForSingleDatabase
      */
     fun buildMappingMongoConverter(
         factory: MongoDatabaseFactory,
@@ -83,6 +88,7 @@ object MongoDatabaseUtils {
      * [MongoTemplate] 타입의 빈으로 사용될 객체를 생성한다.
      * @see org.springframework.boot.autoconfigure.data.mongo.MongoDatabaseFactoryDependentConfiguration.mongoTemplate
      * @see com.github.wonsim02.infra.mongodb.config.PrimaryDatabaseConfiguration.mongoTemplate
+     * @see AdditionalMongoDatabasesRegistrar.registerBeansForSingleDatabase
      */
     fun buildMongoTemplate(
         factory: MongoDatabaseFactory,
