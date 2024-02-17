@@ -3,7 +3,6 @@ package com.github.wonsim02.infra.mongodb.support
 import com.github.womsim02.common.util.toCamelCase
 import com.mongodb.client.MongoClient
 import org.springframework.beans.BeanUtils
-import org.springframework.boot.autoconfigure.domain.EntityScanner
 import org.springframework.boot.autoconfigure.mongo.MongoProperties
 import org.springframework.boot.context.properties.PropertyMapper
 import org.springframework.context.ApplicationContext
@@ -16,7 +15,6 @@ import org.springframework.data.mongodb.core.convert.DbRefResolver
 import org.springframework.data.mongodb.core.convert.DefaultDbRefResolver
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions
-import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext
 
 object MongoDatabaseUtils {
@@ -74,8 +72,8 @@ object MongoDatabaseUtils {
         val mapper: PropertyMapper = PropertyMapper.get().alwaysApplyingWhenNonNull()
         mapper.from(properties.isAutoIndexCreation).to(context::setAutoIndexCreation)
 
-        val scanner = EntityScanner(applicationContext)
-        context.setInitialEntitySet(scanner.scan(Document::class.java))
+        val scanner = MongoDocumentScanner(applicationContext)
+        context.setInitialEntitySet(scanner.scanDocuments())
 
         properties.fieldNamingStrategy?.let { strategyClass ->
             (BeanUtils.instantiateClass(strategyClass) as? FieldNamingStrategy)
