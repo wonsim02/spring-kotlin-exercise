@@ -31,7 +31,7 @@ class AdditionalMongoDatabasesRegistrar(
     override fun postProcessBeanFactory(beanFactory: ConfigurableListableBeanFactory) {
         if (beanFactory !is DefaultListableBeanFactory) return
         for (database in additionalDatabases) {
-            if (database != primaryMongoDatabase) {
+            if (database != primaryMongoDatabase && database.isNotBlank()) {
                 registerBeansForSingleDatabase(beanFactory, database)
             }
         }
