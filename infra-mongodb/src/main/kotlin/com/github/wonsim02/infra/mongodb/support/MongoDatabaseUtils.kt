@@ -19,6 +19,7 @@ import org.springframework.data.mongodb.core.mapping.MongoMappingContext
 
 object MongoDatabaseUtils {
 
+    private const val MONGO_MAPPING_CONTEXT_POSTFIX = "MongoMappingContext"
     private const val MONGO_DATABASE_FACTORY_POSTFIX = "MongoDatabaseFactory"
     private const val MAPPING_MONGO_CONVERTER_POSTFIX = "MappingMongoConverter"
     private const val MONGO_TEMPLATE_POSTFIX = "MongoTemplate"
@@ -32,6 +33,14 @@ object MongoDatabaseUtils {
         mongoProperties: MongoProperties,
     ): String {
         return mongoProperties.mongoClientDatabase
+    }
+
+    /**
+     * 추가로 정의한 Mongo 데이터베이스에 대한 [MongoMappingContext] 빈의 이름을 생성한다.
+     * @see AdditionalMongoDatabasesRegistrar.registerBeansForSingleDatabase
+     */
+    fun genForMongoMappingContext(database: String): String {
+        return database.toCamelCase() + MONGO_MAPPING_CONTEXT_POSTFIX
     }
 
     /**
@@ -62,6 +71,7 @@ object MongoDatabaseUtils {
      * [MongoMappingContext] 타입의 빈으로 사용될 객체를 생성한다.
      * @see org.springframework.boot.autoconfigure.data.mongo.MongoDataConfiguration.mongoCustomConversions
      * @see com.github.wonsim02.infra.mongodb.config.PrimaryMongoDatabaseConfiguration.mongoMappingContext
+     * @see AdditionalMongoDatabasesRegistrar.registerBeansForSingleDatabase
      */
     fun buildMongoMappingContext(
         applicationContext: ApplicationContext,
