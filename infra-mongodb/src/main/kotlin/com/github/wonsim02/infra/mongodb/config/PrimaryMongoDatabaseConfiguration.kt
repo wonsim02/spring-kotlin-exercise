@@ -87,6 +87,8 @@ class PrimaryMongoDatabaseConfiguration {
             applicationContext = applicationContext,
             properties = properties,
             conversions = conversions,
+            database = MongoDatabaseUtils.determinePrimaryDatabaseName(properties),
+            isPrimary = true,
         )
     }
 

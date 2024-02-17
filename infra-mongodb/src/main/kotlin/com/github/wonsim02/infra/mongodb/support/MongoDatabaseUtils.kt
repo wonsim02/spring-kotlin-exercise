@@ -67,12 +67,14 @@ object MongoDatabaseUtils {
         applicationContext: ApplicationContext,
         properties: MongoProperties,
         conversions: MongoCustomConversions,
+        database: String,
+        isPrimary: Boolean,
     ): MongoMappingContext {
         val context = MongoMappingContext()
         val mapper: PropertyMapper = PropertyMapper.get().alwaysApplyingWhenNonNull()
         mapper.from(properties.isAutoIndexCreation).to(context::setAutoIndexCreation)
 
-        val scanner = MongoDocumentScanner(applicationContext)
+        val scanner = MongoDocumentScanner(applicationContext, database, isPrimary)
         context.setInitialEntitySet(scanner.scanDocuments())
 
         properties.fieldNamingStrategy?.let { strategyClass ->
