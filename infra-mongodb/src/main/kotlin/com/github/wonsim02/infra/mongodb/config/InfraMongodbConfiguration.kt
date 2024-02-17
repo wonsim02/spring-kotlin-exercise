@@ -10,7 +10,9 @@ import org.springframework.context.annotation.Import
     AdditionalMongodbProperties::class,
 )
 @Import(
+    AdditionalMongoDatabasesConfiguration::class,
     CustomizingMongoClientConfiguration::class,
+    PrimaryMongoDatabaseConfiguration::class,
 )
 @ProfileAwarePropertySource(
     locations = [
