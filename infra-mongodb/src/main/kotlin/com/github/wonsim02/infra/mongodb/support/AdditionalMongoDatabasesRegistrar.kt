@@ -6,7 +6,6 @@ import org.springframework.beans.factory.config.BeanFactoryPostProcessor
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
 import org.springframework.beans.factory.support.DefaultListableBeanFactory
 import org.springframework.beans.factory.support.RootBeanDefinition
-import org.springframework.boot.autoconfigure.mongo.MongoProperties
 import org.springframework.context.ApplicationContext
 import org.springframework.data.mongodb.MongoDatabaseFactory
 import org.springframework.data.mongodb.core.MongoDatabaseFactorySupport
@@ -23,15 +22,12 @@ import org.springframework.data.mongodb.core.mapping.MongoMappingContext
 class AdditionalMongoDatabasesRegistrar(
     private val applicationContext: ApplicationContext,
     private val additionalDatabases: Set<String>,
-    mongoProperties: MongoProperties,
 ) : BeanFactoryPostProcessor {
-
-    private val primaryMongoDatabase: String = MongoDatabaseUtils.determinePrimaryDatabaseName(mongoProperties)
 
     override fun postProcessBeanFactory(beanFactory: ConfigurableListableBeanFactory) {
         if (beanFactory !is DefaultListableBeanFactory) return
         for (database in additionalDatabases) {
-            if (database != primaryMongoDatabase && database.isNotBlank()) {
+            if (database.isNotBlank()) {
                 registerBeansForSingleDatabase(beanFactory, database)
             }
         }
