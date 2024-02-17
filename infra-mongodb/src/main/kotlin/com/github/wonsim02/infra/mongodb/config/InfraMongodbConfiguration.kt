@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Import
 )
 @Import(
     CustomizingMongoClientConfiguration::class,
+    PrimaryDatabaseConfiguration::class,
 )
 @ProfileAwarePropertySource(
     locations = [
