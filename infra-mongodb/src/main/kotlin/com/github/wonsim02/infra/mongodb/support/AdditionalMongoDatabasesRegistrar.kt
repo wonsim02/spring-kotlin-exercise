@@ -1,6 +1,6 @@
 package com.github.wonsim02.infra.mongodb.support
 
-import com.github.wonsim02.infra.mongodb.config.PrimaryDatabaseConfiguration
+import com.github.wonsim02.infra.mongodb.config.PrimaryMongoDatabaseConfiguration
 import com.mongodb.client.MongoClient
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
@@ -18,7 +18,7 @@ import org.springframework.data.mongodb.core.mapping.MongoMappingContext
 /**
  * [additionalDatabases]로 지정된 Mongo 데이터베이스에 대해 [MongoDatabaseFactory], [MappingMongoConverter] 및 [MongoTemplate]
  * 빈을 등록하는 컴포넌트.
- * [PrimaryDatabaseConfiguration]에서 `@Primary` 어노테이션으로 정의된 빈의 타입에 대하여 각 데이터베이스 이름마다 새로운 빈이 추가된다.
+ * [PrimaryMongoDatabaseConfiguration]에서 `@Primary` 어노테이션으로 정의된 빈의 타입에 대하여 각 데이터베이스 이름마다 새로운 빈이 추가된다.
  */
 class AdditionalMongoDatabasesRegistrar(
     private val applicationContext: ApplicationContext,

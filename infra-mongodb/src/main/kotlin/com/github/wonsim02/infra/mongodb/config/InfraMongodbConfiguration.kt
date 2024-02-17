@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Import
 @Import(
     AdditionalMongoDatabasesConfiguration::class,
     CustomizingMongoClientConfiguration::class,
-    PrimaryDatabaseConfiguration::class,
+    PrimaryMongoDatabaseConfiguration::class,
 )
 @ProfileAwarePropertySource(
     locations = [

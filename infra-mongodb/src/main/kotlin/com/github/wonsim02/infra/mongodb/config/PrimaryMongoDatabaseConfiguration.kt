@@ -43,7 +43,7 @@ import org.springframework.data.mongodb.core.mapping.MongoMappingContext
  * @see MongoDatabaseUtils.buildMongoTemplate
  */
 @EnableConfigurationProperties(MongoProperties::class)
-class PrimaryDatabaseConfiguration {
+class PrimaryMongoDatabaseConfiguration {
 
     /**
      * @see MongoAutoConfiguration.MongoClientSettingsConfiguration.mongoPropertiesCustomizer
