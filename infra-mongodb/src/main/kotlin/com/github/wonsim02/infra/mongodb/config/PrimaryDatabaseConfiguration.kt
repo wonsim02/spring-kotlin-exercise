@@ -5,6 +5,7 @@ import com.mongodb.client.MongoClient
 import org.springframework.beans.BeanUtils
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
+import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration
 import org.springframework.boot.autoconfigure.domain.EntityScanner
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
 import org.springframework.boot.autoconfigure.mongo.MongoClientFactory
@@ -29,6 +30,17 @@ import org.springframework.data.mongodb.core.convert.MongoCustomConversions
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext
 
+/**
+ * [MongoDataAutoConfiguration]으로 등록되는 빈의 정의를 그대로 가져온 스프링 설정.
+ * 그 중 Mongo 데이터베이스가 달라지면 새로 빈을 등록해야 하는 경우에는 @[Primary] 어노테이션을 통해 해당 빈의 타입에 대해 2개 이상의 빈이 등록될 수 있도록 조치함.
+ * - [MongoAutoConfiguration] : [mongoPropertiesCustomizer], [mongoClientSettings], [mongo]
+ * - [org.springframework.boot.autoconfigure.data.mongo.MongoDataConfiguration] : [mongoMappingContext], [mongoCustomConversions]
+ * - [org.springframework.boot.autoconfigure.data.mongo.MongoDatabaseFactoryConfiguration] : [mongoDatabaseFactory]
+ *      - `mongoDatabaseFactory` 빈의 경우 연결하려는 Mongo 데이터베이스의 값에 따라 `MongoDatabaseFactorySupport` 타입의 빈이 추가될 수 있으므로 `Primary` 빈으로 정의
+ * - [org.springframework.boot.autoconfigure.data.mongo.MongoDatabaseFactoryDependentConfiguration] : [mappingMongoConverter], [mongoTemplate]
+ *      - `mappingMongoConverter` 및 `mongoTemplate`의 경우 `MongoDatabaseFactory` 타입의 빈을 주입받아 생성되므로 Mongo 데이터베이스의 값에 따라
+ *       새로운 빈이 등록될 수 있다. 따라서 `Primary` 빈으로 정의하여 여러 개의 `MappingMongoConverter` 및 `MongoTemplate` 빈의 등록을 허용한다.
+ */
 @EnableConfigurationProperties(MongoProperties::class)
 class PrimaryDatabaseConfiguration {
 
