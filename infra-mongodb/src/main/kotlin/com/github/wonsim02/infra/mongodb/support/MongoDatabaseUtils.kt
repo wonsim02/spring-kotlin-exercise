@@ -70,14 +70,18 @@ object MongoDatabaseUtils {
         properties: MongoProperties,
         conversions: MongoCustomConversions,
     ): MongoMappingContext {
-        val mapper: PropertyMapper = PropertyMapper.get().alwaysApplyingWhenNonNull()
         val context = MongoMappingContext()
+        val mapper: PropertyMapper = PropertyMapper.get().alwaysApplyingWhenNonNull()
         mapper.from(properties.isAutoIndexCreation).to(context::setAutoIndexCreation)
-        context.setInitialEntitySet(EntityScanner(applicationContext).scan(Document::class.java))
+
+        val scanner = EntityScanner(applicationContext)
+        context.setInitialEntitySet(scanner.scan(Document::class.java))
+
         properties.fieldNamingStrategy?.let { strategyClass ->
             (BeanUtils.instantiateClass(strategyClass) as? FieldNamingStrategy)
                 ?.let(context::setFieldNamingStrategy)
         }
+
         context.setSimpleTypeHolder(conversions.simpleTypeHolder)
         return context
     }
