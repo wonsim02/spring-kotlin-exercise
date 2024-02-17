@@ -11,4 +11,5 @@ import org.springframework.boot.context.properties.ConstructorBinding
 @ConstructorBinding
 class AdditionalMongodbProperties(
     val retryWrites: Boolean,
+    val additionalDatabases: List<String> = listOf(),
 )
