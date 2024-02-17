@@ -1,7 +1,17 @@
 package com.github.wonsim02.infra.mongodb.support
 
 import com.github.womsim02.common.util.toCamelCase
+import com.mongodb.client.MongoClient
 import org.springframework.boot.autoconfigure.mongo.MongoProperties
+import org.springframework.data.mongodb.MongoDatabaseFactory
+import org.springframework.data.mongodb.core.MongoDatabaseFactorySupport
+import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory
+import org.springframework.data.mongodb.core.convert.DbRefResolver
+import org.springframework.data.mongodb.core.convert.DefaultDbRefResolver
+import org.springframework.data.mongodb.core.convert.MappingMongoConverter
+import org.springframework.data.mongodb.core.convert.MongoCustomConversions
+import org.springframework.data.mongodb.core.mapping.MongoMappingContext
 
 object MongoDatabaseUtils {
 
@@ -39,5 +49,45 @@ object MongoDatabaseUtils {
      */
     fun genForMongoTemplate(database: String): String {
         return database.toCamelCase() + MONGO_TEMPLATE_POSTFIX
+    }
+
+    /**
+     * [MongoDatabaseFactorySupport] 타입의 빈으로 사용될 객체를 생성한다.
+     * @see org.springframework.boot.autoconfigure.data.mongo.MongoDatabaseFactoryConfiguration.mongoDatabaseFactory
+     * @see com.github.wonsim02.infra.mongodb.config.PrimaryDatabaseConfiguration.mongoDatabaseFactory
+     */
+    fun buildMongoDatabaseFactory(
+        mongoClient: MongoClient,
+        database: String,
+    ): MongoDatabaseFactorySupport<*> {
+        return SimpleMongoClientDatabaseFactory(mongoClient, database)
+    }
+
+    /**
+     * [MappingMongoConverter] 타입의 빈으로 사용될 객체를 생성한다.
+     * @see org.springframework.boot.autoconfigure.data.mongo.MongoDatabaseFactoryDependentConfiguration.mappingMongoConverter
+     * @see com.github.wonsim02.infra.mongodb.config.PrimaryDatabaseConfiguration.mappingMongoConverter
+     */
+    fun buildMappingMongoConverter(
+        factory: MongoDatabaseFactory,
+        context: MongoMappingContext,
+        conversions: MongoCustomConversions,
+    ): MappingMongoConverter {
+        val dbRefResolver: DbRefResolver = DefaultDbRefResolver(factory)
+        val mappingConverter = MappingMongoConverter(dbRefResolver, context)
+        mappingConverter.customConversions = conversions
+        return mappingConverter
+    }
+
+    /**
+     * [MongoTemplate] 타입의 빈으로 사용될 객체를 생성한다.
+     * @see org.springframework.boot.autoconfigure.data.mongo.MongoDatabaseFactoryDependentConfiguration.mongoTemplate
+     * @see com.github.wonsim02.infra.mongodb.config.PrimaryDatabaseConfiguration.mongoTemplate
+     */
+    fun buildMongoTemplate(
+        factory: MongoDatabaseFactory,
+        converter: MappingMongoConverter,
+    ): MongoTemplate {
+        return MongoTemplate(factory, converter)
     }
 }

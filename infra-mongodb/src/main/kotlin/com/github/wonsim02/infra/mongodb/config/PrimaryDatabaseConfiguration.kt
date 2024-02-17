@@ -1,6 +1,6 @@
 package com.github.wonsim02.infra.mongodb.config
 
-import com.github.wonsim02.infra.mongodb.support.MongoDatabaseUtils.determinePrimaryDatabaseName
+import com.github.wonsim02.infra.mongodb.support.MongoDatabaseUtils
 import com.mongodb.MongoClientSettings
 import com.mongodb.client.MongoClient
 import org.springframework.beans.BeanUtils
@@ -23,9 +23,6 @@ import org.springframework.data.mapping.model.FieldNamingStrategy
 import org.springframework.data.mongodb.MongoDatabaseFactory
 import org.springframework.data.mongodb.core.MongoDatabaseFactorySupport
 import org.springframework.data.mongodb.core.MongoTemplate
-import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory
-import org.springframework.data.mongodb.core.convert.DbRefResolver
-import org.springframework.data.mongodb.core.convert.DefaultDbRefResolver
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions
 import org.springframework.data.mongodb.core.mapping.Document
@@ -41,6 +38,9 @@ import org.springframework.data.mongodb.core.mapping.MongoMappingContext
  * - [org.springframework.boot.autoconfigure.data.mongo.MongoDatabaseFactoryDependentConfiguration] : [mappingMongoConverter], [mongoTemplate]
  *      - `mappingMongoConverter` 및 `mongoTemplate`의 경우 `MongoDatabaseFactory` 타입의 빈을 주입받아 생성되므로 Mongo 데이터베이스의 값에 따라
  *       새로운 빈이 등록될 수 있다. 따라서 `Primary` 빈으로 정의하여 여러 개의 `MappingMongoConverter` 및 `MongoTemplate` 빈의 등록을 허용한다.
+ * @see MongoDatabaseUtils.buildMongoDatabaseFactory
+ * @see MongoDatabaseUtils.buildMappingMongoConverter
+ * @see MongoDatabaseUtils.buildMongoTemplate
  */
 @EnableConfigurationProperties(MongoProperties::class)
 class PrimaryDatabaseConfiguration {
@@ -118,7 +118,10 @@ class PrimaryDatabaseConfiguration {
         mongoClient: MongoClient,
         properties: MongoProperties,
     ): MongoDatabaseFactorySupport<*> {
-        return SimpleMongoClientDatabaseFactory(mongoClient, determinePrimaryDatabaseName(properties))
+        return MongoDatabaseUtils.buildMongoDatabaseFactory(
+            mongoClient = mongoClient,
+            database = MongoDatabaseUtils.determinePrimaryDatabaseName(properties),
+        )
     }
 
     /**
@@ -131,10 +134,7 @@ class PrimaryDatabaseConfiguration {
         @Qualifier(MONGO_MAPPING_CONTEXT) context: MongoMappingContext,
         conversions: MongoCustomConversions,
     ): MappingMongoConverter {
-        val dbRefResolver: DbRefResolver = DefaultDbRefResolver(factory)
-        val mappingConverter = MappingMongoConverter(dbRefResolver, context)
-        mappingConverter.customConversions = conversions
-        return mappingConverter
+        return MongoDatabaseUtils.buildMappingMongoConverter(factory, context, conversions)
     }
 
     /**
@@ -146,7 +146,7 @@ class PrimaryDatabaseConfiguration {
         @Qualifier(MONGO_DATABASE_FACTORY) factory: MongoDatabaseFactory,
         @Qualifier(MAPPING_MONGO_CONVERTER) converter: MappingMongoConverter,
     ): MongoTemplate {
-        return MongoTemplate(factory, converter)
+        return MongoDatabaseUtils.buildMongoTemplate(factory, converter)
     }
 
     companion object {
