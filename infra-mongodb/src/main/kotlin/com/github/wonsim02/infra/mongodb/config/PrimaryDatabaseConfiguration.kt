@@ -1,5 +1,6 @@
 package com.github.wonsim02.infra.mongodb.config
 
+import com.github.wonsim02.infra.mongodb.support.MongoDatabaseUtils.determinePrimaryDatabaseName
 import com.mongodb.MongoClientSettings
 import com.mongodb.client.MongoClient
 import org.springframework.beans.BeanUtils
@@ -117,7 +118,7 @@ class PrimaryDatabaseConfiguration {
         mongoClient: MongoClient,
         properties: MongoProperties,
     ): MongoDatabaseFactorySupport<*> {
-        return SimpleMongoClientDatabaseFactory(mongoClient, properties.mongoClientDatabase)
+        return SimpleMongoClientDatabaseFactory(mongoClient, determinePrimaryDatabaseName(properties))
     }
 
     /**
