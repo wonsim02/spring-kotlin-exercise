@@ -5,4 +5,5 @@ object Ver {
     const val ktlintPlugin = "10.2.1"
     const val springBoot = "2.7.7"
     const val springDependencyManagement = "1.1.4"
+    const val testContainers = "1.19.4"
 }

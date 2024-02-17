@@ -1,0 +1,6 @@
+com:
+  github:
+    wonsim02:
+      infra:
+        mongodb:
+          retry-writes: true
