@@ -2,10 +2,13 @@ package com.github.wonsim02.infra.mongodb.support
 
 import com.github.wonsim02.infra.mongodb.config.PrimaryMongoDatabaseConfiguration
 import com.mongodb.client.MongoClient
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor
+import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
 import org.springframework.beans.factory.support.DefaultListableBeanFactory
 import org.springframework.beans.factory.support.RootBeanDefinition
+import org.springframework.boot.autoconfigure.mongo.MongoProperties
 import org.springframework.context.ApplicationContext
 import org.springframework.data.mongodb.MongoDatabaseFactory
 import org.springframework.data.mongodb.core.MongoDatabaseFactorySupport
@@ -22,7 +25,24 @@ import org.springframework.data.mongodb.core.mapping.MongoMappingContext
 class AdditionalMongoDatabasesRegistrar(
     private val applicationContext: ApplicationContext,
     private val additionalDatabases: Set<String>,
-) : BeanFactoryPostProcessor {
+) : BeanFactoryPostProcessor, BeanPostProcessor {
+
+    private val logger = LoggerFactory.getLogger(this::class.java)
+
+    override fun postProcessAfterInitialization(bean: Any, beanName: String): Any {
+        if (bean is MongoProperties) {
+            val primaryDatabase = MongoDatabaseUtils.determinePrimaryDatabaseName(bean)
+            if (additionalDatabases.contains(primaryDatabase)) {
+                logger.warn(
+                    "Bean definitions of additional MongoDatabaseFactory, MappingMongoConverter, and MongoTemplate " +
+                        "for database of name={} already registered.",
+                    primaryDatabase,
+                )
+            }
+        }
+
+        return bean
+    }
 
     override fun postProcessBeanFactory(beanFactory: ConfigurableListableBeanFactory) {
         if (beanFactory !is DefaultListableBeanFactory) return
