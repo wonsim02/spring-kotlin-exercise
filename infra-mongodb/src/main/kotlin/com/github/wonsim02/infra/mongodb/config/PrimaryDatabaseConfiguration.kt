@@ -14,8 +14,11 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.context.properties.PropertyMapper
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Primary
 import org.springframework.core.env.Environment
 import org.springframework.data.mapping.model.FieldNamingStrategy
+import org.springframework.data.mongodb.core.MongoDatabaseFactorySupport
+import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext
@@ -87,8 +90,21 @@ class PrimaryDatabaseConfiguration {
         return MongoCustomConversions(emptyList<Any>())
     }
 
+    /**
+     * @see org.springframework.boot.autoconfigure.data.mongo.MongoDatabaseFactoryConfiguration.mongoDatabaseFactory
+     */
+    @Primary
+    @Bean(name = [MONGO_DATABASE_FACTORY])
+    fun mongoDatabaseFactory(
+        mongoClient: MongoClient,
+        properties: MongoProperties,
+    ): MongoDatabaseFactorySupport<*> {
+        return SimpleMongoClientDatabaseFactory(mongoClient, properties.mongoClientDatabase)
+    }
+
     companion object {
 
+        const val MONGO_DATABASE_FACTORY = "mongoDatabaseFactory"
         const val MONGO_MAPPING_CONTEXT = "mongoMappingContext"
     }
 }
