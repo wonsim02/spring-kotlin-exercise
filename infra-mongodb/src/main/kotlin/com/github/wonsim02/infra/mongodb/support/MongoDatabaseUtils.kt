@@ -2,7 +2,12 @@ package com.github.wonsim02.infra.mongodb.support
 
 import com.github.womsim02.common.util.toCamelCase
 import com.mongodb.client.MongoClient
+import org.springframework.beans.BeanUtils
+import org.springframework.boot.autoconfigure.domain.EntityScanner
 import org.springframework.boot.autoconfigure.mongo.MongoProperties
+import org.springframework.boot.context.properties.PropertyMapper
+import org.springframework.context.ApplicationContext
+import org.springframework.data.mapping.model.FieldNamingStrategy
 import org.springframework.data.mongodb.MongoDatabaseFactory
 import org.springframework.data.mongodb.core.MongoDatabaseFactorySupport
 import org.springframework.data.mongodb.core.MongoTemplate
@@ -11,6 +16,7 @@ import org.springframework.data.mongodb.core.convert.DbRefResolver
 import org.springframework.data.mongodb.core.convert.DefaultDbRefResolver
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions
+import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext
 
 object MongoDatabaseUtils {
@@ -52,6 +58,28 @@ object MongoDatabaseUtils {
      */
     fun genForMongoTemplate(database: String): String {
         return database.toCamelCase() + MONGO_TEMPLATE_POSTFIX
+    }
+
+    /**
+     * [MongoMappingContext] 타입의 빈으로 사용될 객체를 생성한다.
+     * @see org.springframework.boot.autoconfigure.data.mongo.MongoDataConfiguration.mongoCustomConversions
+     * @see com.github.wonsim02.infra.mongodb.config.PrimaryMongoDatabaseConfiguration.mongoMappingContext
+     */
+    fun buildMongoMappingContext(
+        applicationContext: ApplicationContext,
+        properties: MongoProperties,
+        conversions: MongoCustomConversions,
+    ): MongoMappingContext {
+        val mapper: PropertyMapper = PropertyMapper.get().alwaysApplyingWhenNonNull()
+        val context = MongoMappingContext()
+        mapper.from(properties.isAutoIndexCreation).to(context::setAutoIndexCreation)
+        context.setInitialEntitySet(EntityScanner(applicationContext).scan(Document::class.java))
+        properties.fieldNamingStrategy?.let { strategyClass ->
+            (BeanUtils.instantiateClass(strategyClass) as? FieldNamingStrategy)
+                ?.let(context::setFieldNamingStrategy)
+        }
+        context.setSimpleTypeHolder(conversions.simpleTypeHolder)
+        return context
     }
 
     /**
