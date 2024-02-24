@@ -15,6 +15,7 @@ import org.springframework.context.ApplicationContext
 import org.springframework.data.mongodb.MongoDatabaseFactory
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter
+import org.springframework.data.mongodb.core.mapping.MongoMappingContext
 import org.springframework.test.context.TestPropertySource
 
 /**
@@ -34,6 +35,9 @@ class PrimaryMongoDatabaseConfigurationTest : InfraMongodbTestBase() {
     private lateinit var mongoProperties: MongoProperties
 
     @Autowired
+    private lateinit var primaryMongoMappingContext: MongoMappingContext
+
+    @Autowired
     private lateinit var primaryMongoDatabaseFactory: MongoDatabaseFactory
 
     @Autowired
@@ -48,6 +52,22 @@ class PrimaryMongoDatabaseConfigurationTest : InfraMongodbTestBase() {
     @Test
     fun `exactly one mongoClient bean registered`() {
         assertEquals(1, applicationContext.getBeansOfType(MongoClient::class.java).size)
+    }
+
+    /**
+     * [PrimaryMongoDatabaseConfiguration]으로 [MongoMappingContext] 빈이 잘 등록되었는지 검사한다.
+     * 1. 이름이 [PrimaryMongoDatabaseConfiguration.MONGO_MAPPING_CONTEXT] 빈이 존재하는 지 확인한다.
+     * 2. 1의 빈의 타입이 [MongoMappingContext]인지 확인한다.
+     * 3. 2의 빈이 별도로 빈 이름을 지정하지 않고 불러온 [MongoMappingContext] 타입의 빈과 동일한 객체인지 확인한다.
+     */
+    @Test
+    fun `mongoMappingContext registered as expected`() {
+        val bean = assertDoesNotThrow {
+            applicationContext.getBean(PrimaryMongoDatabaseConfiguration.MONGO_MAPPING_CONTEXT)
+        }
+        val mongoMappingContext = assertInstanceOf(MongoMappingContext::class.java, bean)
+
+        assertTrue(primaryMongoMappingContext === mongoMappingContext)
     }
 
     /**
@@ -72,7 +92,8 @@ class PrimaryMongoDatabaseConfigurationTest : InfraMongodbTestBase() {
      * [PrimaryMongoDatabaseConfiguration]으로 [MappingMongoConverter] 빈이 잘 등록되었는지 검사한다.
      * 1. 이름이 [PrimaryMongoDatabaseConfiguration.MAPPING_MONGO_CONVERTER] 빈이 존재하는 지 확인한다.
      * 2. 1의 빈의 타입이 [MappingMongoConverter]인지 확인한다.
-     * 3. 2의 빈이 별도로 빈 이름을 지정하지 않고 불러온 [MappingMongoConverter] 타입의 빈과 동일한 객체인지 확인한다.
+     * 3. 2의 빈의 [MappingMongoConverter.mappingContext]가 별도로 빈 이름을 지정하지 않고 불러온 [MongoMappingContext]와 동일한 객체인지 확인한다.
+     * 4. 2의 빈이 별도로 빈 이름을 지정하지 않고 불러온 [MappingMongoConverter] 타입의 빈과 동일한 객체인지 확인한다.
      */
     @Test
     fun `mappingMongoConverter registered as expected`() {
@@ -80,6 +101,7 @@ class PrimaryMongoDatabaseConfigurationTest : InfraMongodbTestBase() {
             applicationContext.getBean(PrimaryMongoDatabaseConfiguration.MAPPING_MONGO_CONVERTER)
         }
         val mappingMongoConverter = assertInstanceOf(MappingMongoConverter::class.java, bean)
+        assertTrue(primaryMongoMappingContext === mappingMongoConverter.mappingContext)
 
         assertTrue(primaryMappingMongoConverter === mappingMongoConverter)
     }

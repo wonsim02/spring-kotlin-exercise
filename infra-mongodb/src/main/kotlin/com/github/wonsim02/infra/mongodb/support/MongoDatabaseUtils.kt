@@ -2,7 +2,11 @@ package com.github.wonsim02.infra.mongodb.support
 
 import com.github.womsim02.common.util.toCamelCase
 import com.mongodb.client.MongoClient
+import org.springframework.beans.BeanUtils
 import org.springframework.boot.autoconfigure.mongo.MongoProperties
+import org.springframework.boot.context.properties.PropertyMapper
+import org.springframework.context.ApplicationContext
+import org.springframework.data.mapping.model.FieldNamingStrategy
 import org.springframework.data.mongodb.MongoDatabaseFactory
 import org.springframework.data.mongodb.core.MongoDatabaseFactorySupport
 import org.springframework.data.mongodb.core.MongoTemplate
@@ -15,6 +19,7 @@ import org.springframework.data.mongodb.core.mapping.MongoMappingContext
 
 object MongoDatabaseUtils {
 
+    private const val MONGO_MAPPING_CONTEXT_POSTFIX = "MongoMappingContext"
     private const val MONGO_DATABASE_FACTORY_POSTFIX = "MongoDatabaseFactory"
     private const val MAPPING_MONGO_CONVERTER_POSTFIX = "MappingMongoConverter"
     private const val MONGO_TEMPLATE_POSTFIX = "MongoTemplate"
@@ -28,6 +33,14 @@ object MongoDatabaseUtils {
         mongoProperties: MongoProperties,
     ): String {
         return mongoProperties.mongoClientDatabase
+    }
+
+    /**
+     * 추가로 정의한 Mongo 데이터베이스에 대한 [MongoMappingContext] 빈의 이름을 생성한다.
+     * @see AdditionalMongoDatabasesRegistrar.registerBeansForSingleDatabase
+     */
+    fun genForMongoMappingContext(database: String): String {
+        return database.toCamelCase() + MONGO_MAPPING_CONTEXT_POSTFIX
     }
 
     /**
@@ -52,6 +65,35 @@ object MongoDatabaseUtils {
      */
     fun genForMongoTemplate(database: String): String {
         return database.toCamelCase() + MONGO_TEMPLATE_POSTFIX
+    }
+
+    /**
+     * [MongoMappingContext] 타입의 빈으로 사용될 객체를 생성한다.
+     * @see org.springframework.boot.autoconfigure.data.mongo.MongoDataConfiguration.mongoCustomConversions
+     * @see com.github.wonsim02.infra.mongodb.config.PrimaryMongoDatabaseConfiguration.mongoMappingContext
+     * @see AdditionalMongoDatabasesRegistrar.registerBeansForSingleDatabase
+     */
+    fun buildMongoMappingContext(
+        applicationContext: ApplicationContext,
+        properties: MongoProperties,
+        conversions: MongoCustomConversions,
+        database: String,
+        isPrimary: Boolean,
+    ): MongoMappingContext {
+        val context = MongoMappingContext()
+        val mapper: PropertyMapper = PropertyMapper.get().alwaysApplyingWhenNonNull()
+        mapper.from(properties.isAutoIndexCreation).to(context::setAutoIndexCreation)
+
+        val scanner = MongoDocumentScanner(applicationContext, database, isPrimary)
+        context.setInitialEntitySet(scanner.scanDocuments())
+
+        properties.fieldNamingStrategy?.let { strategyClass ->
+            (BeanUtils.instantiateClass(strategyClass) as? FieldNamingStrategy)
+                ?.let(context::setFieldNamingStrategy)
+        }
+
+        context.setSimpleTypeHolder(conversions.simpleTypeHolder)
+        return context
     }
 
     /**

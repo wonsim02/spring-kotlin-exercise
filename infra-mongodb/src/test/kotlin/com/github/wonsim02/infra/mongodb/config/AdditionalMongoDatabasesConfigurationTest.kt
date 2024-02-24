@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.data.mongodb.MongoDatabaseFactory
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter
+import org.springframework.data.mongodb.core.mapping.MongoMappingContext
 import org.springframework.test.context.TestPropertySource
 
 /**
@@ -45,6 +46,9 @@ class AdditionalMongoDatabasesConfigurationTest : InfraMongodbTestBase() {
     private lateinit var applicationContext: ApplicationContext
 
     @Autowired
+    private lateinit var primaryMongoMappingContext: MongoMappingContext
+
+    @Autowired
     private lateinit var primaryMongoDatabaseFactory: MongoDatabaseFactory
 
     @Autowired
@@ -62,8 +66,8 @@ class AdditionalMongoDatabasesConfigurationTest : InfraMongodbTestBase() {
     }
 
     /**
-     * 이름이 [database]인 Mongo 데이터베이스에 대한 [MongoDatabaseFactory], [MappingMongoConverter] 및 [MongoTemplate] 빈이 잘
-     * 등록되었는지, 그리고 해당 빈들이 primary 빈이 아닌지 검사한다.
+     * 이름이 [database]인 Mongo 데이터베이스에 대한 [MongoMappingContext], [MongoDatabaseFactory], [MappingMongoConverter] 및
+     * [MongoTemplate] 빈이 잘 등록되었는지, 그리고 해당 빈들이 primary 빈이 아닌지 검사한다.
      */
     @ParameterizedTest
     @ValueSource(
@@ -73,6 +77,13 @@ class AdditionalMongoDatabasesConfigurationTest : InfraMongodbTestBase() {
         ],
     )
     fun `mongodb-related beans for additional database registered as expected`(database: String) {
+        // verify existence of MongoMappingContext bean
+        val mongoMappingContextName = MongoDatabaseUtils.genForMongoMappingContext(database)
+        val mongoMappingContext = assertInstanceOf(
+            MongoMappingContext::class.java,
+            assertDoesNotThrow { applicationContext.getBean(mongoMappingContextName) },
+        )
+
         // verify existence of MongoDatabaseFactory bean
         val mongoDatabaseFactoryName = MongoDatabaseUtils.genForMongoDatabaseFactory(database)
         val mongoDatabaseFactory = assertInstanceOf(
@@ -90,6 +101,9 @@ class AdditionalMongoDatabasesConfigurationTest : InfraMongodbTestBase() {
             assertDoesNotThrow { applicationContext.getBean(mappingMongoConverterName) },
         )
 
+        // verify MappingMongoConverter bean
+        assertTrue(mongoMappingContext === mappingMongoConverter.mappingContext)
+
         // verify existence of MongoTemplate bean
         val mongoTemplateName = MongoDatabaseUtils.genForMongoTemplate(database)
         val mongoTemplate = assertInstanceOf(
@@ -102,6 +116,7 @@ class AdditionalMongoDatabasesConfigurationTest : InfraMongodbTestBase() {
         assertTrue(mappingMongoConverter === mongoTemplate.converter)
 
         // compare with primary beans
+        assertTrue(primaryMongoMappingContext !== mongoMappingContext)
         assertTrue(primaryMongoDatabaseFactory !== mongoDatabaseFactory)
         assertTrue(primaryMappingMongoConverter !== mappingMongoConverter)
         assertTrue(primaryMongoTemplate !== mongoTemplate)

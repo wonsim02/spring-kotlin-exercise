@@ -12,7 +12,7 @@ abstract class InfraMongodbTestBase {
 
     companion object {
 
-        private const val DATABASE = "database"
+        const val DATABASE = "database"
         private const val USERNAME = "username"
         private const val PASSWORD = "password"
 

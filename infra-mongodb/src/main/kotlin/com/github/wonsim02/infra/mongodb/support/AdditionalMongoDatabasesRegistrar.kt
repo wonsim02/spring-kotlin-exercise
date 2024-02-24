@@ -18,8 +18,8 @@ import org.springframework.data.mongodb.core.convert.MongoCustomConversions
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext
 
 /**
- * [additionalDatabases]로 지정된 Mongo 데이터베이스에 대해 [MongoDatabaseFactory], [MappingMongoConverter] 및 [MongoTemplate]
- * 빈을 등록하는 컴포넌트.
+ * [additionalDatabases]로 지정된 Mongo 데이터베이스에 대해 [MongoMappingContext], [MongoDatabaseFactory], [MappingMongoConverter]
+ * 및 [MongoTemplate] 빈을 등록하는 컴포넌트.
  * [PrimaryMongoDatabaseConfiguration]에서 `@Primary` 어노테이션으로 정의된 빈의 타입에 대하여 각 데이터베이스 이름마다 새로운 빈이 추가된다.
  */
 class AdditionalMongoDatabasesRegistrar(
@@ -34,8 +34,8 @@ class AdditionalMongoDatabasesRegistrar(
             val primaryDatabase = MongoDatabaseUtils.determinePrimaryDatabaseName(bean)
             if (additionalDatabases.contains(primaryDatabase)) {
                 logger.warn(
-                    "Bean definitions of additional MongoDatabaseFactory, MappingMongoConverter, and MongoTemplate " +
-                        "for database of name={} already registered.",
+                    "Bean definitions of additional MongoMappingContext, MongoDatabaseFactory, MappingMongoConverter, " +
+                        "and MongoTemplate for database of name={} already registered.",
                     primaryDatabase,
                 )
             }
@@ -57,6 +57,19 @@ class AdditionalMongoDatabasesRegistrar(
         beanFactory: DefaultListableBeanFactory,
         database: String,
     ) {
+        // register MongoMappingContext
+        val mongoMappingContextName = MongoDatabaseUtils.genForMongoMappingContext(database)
+        val mongoMappingContextDef = RootBeanDefinition(MongoMappingContext::class.java) {
+            MongoDatabaseUtils.buildMongoMappingContext(
+                applicationContext = applicationContext,
+                properties = applicationContext.getBean(MongoProperties::class.java),
+                conversions = applicationContext.getBean(MongoCustomConversions::class.java),
+                database = database,
+                isPrimary = false,
+            )
+        }
+        beanFactory.registerBeanDefinition(mongoMappingContextName, mongoMappingContextDef)
+
         // register MongoDatabaseFactorySupport
         val mongoDatabaseFactoryName = MongoDatabaseUtils.genForMongoDatabaseFactory(database)
         val mongoDatabaseFactoryDef = RootBeanDefinition(MongoDatabaseFactorySupport::class.java) {
@@ -72,7 +85,7 @@ class AdditionalMongoDatabasesRegistrar(
         val mappingMongoConverterDef = RootBeanDefinition(MappingMongoConverter::class.java) {
             MongoDatabaseUtils.buildMappingMongoConverter(
                 factory = applicationContext.getBean(mongoDatabaseFactoryName) as MongoDatabaseFactory,
-                context = applicationContext.getBean(MongoMappingContext::class.java),
+                context = applicationContext.getBean(mongoMappingContextName) as MongoMappingContext,
                 conversions = applicationContext.getBean(MongoCustomConversions::class.java),
             )
         }
