@@ -99,12 +99,44 @@ class MongoCollectionIndexConfigurer : BeanPostProcessor {
             .filename
             ?.let(MongoIndexDefinitionSource.Companion::parseFilename)
             ?: return null
+        val indexName = parseFilenameResult.indexName
+
+        val descriptionForLogging = parseFilenameResult
+            .description
+            ?.replace("_", " ")
+        if (descriptionForLogging != null) {
+            logger.info(
+                "Found index definition for collection={} and name={} with description={}",
+                collection, indexName, descriptionForLogging,
+            )
+        } else {
+            logger.info(
+                "Found index definition for collection={} and name={}",
+                collection, indexName,
+            )
+        }
+
+        val jsonStr = runCatching { String(resource.inputStream.readAllBytes(), StandardCharsets.UTF_8) }
+            .getOrElse { t ->
+                logger.warn(
+                    "Failed to load index definition for collection={} from resource={}",
+                    collection, resource, t,
+                )
+                return null
+            }
 
         val definition = MongoIndexDefinitionBuilder.build(
-            indexName = parseFilenameResult.indexName,
-            jsonStr = String(resource.inputStream.readAllBytes(), StandardCharsets.UTF_8),
+            indexName = indexName,
+            jsonStr = jsonStr,
             collection = collection,
-        ) ?: return null
+        )
+        if (definition == null) {
+            logger.warn(
+                "Parsing index definition for collection={} loaded from resource={} has been failed.",
+                collection, resource,
+            )
+            return null
+        }
 
         return IndexDefinitionFromResource(parseFilenameResult, definition)
     }
