@@ -6,4 +6,7 @@ import org.springframework.data.mongodb.core.index.IndexDefinition
 internal data class IndexDefinitionFromResource(
     val parseFilenameResult: MongoIndexDefinitionSource.Companion.ParseFilenameResult,
     val indexDefinition: IndexDefinition,
-) : IndexDefinition by indexDefinition
+) : IndexDefinition by indexDefinition {
+
+    val indexName: String get() = parseFilenameResult.indexName
+}

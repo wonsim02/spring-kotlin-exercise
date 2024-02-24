@@ -6,6 +6,7 @@ import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.core.io.Resource
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.index.IndexInfo
 import org.springframework.data.mongodb.core.mapping.MongoPersistentEntity
 import java.io.FileNotFoundException
 import java.nio.charset.StandardCharsets
@@ -35,6 +36,9 @@ class MongoCollectionIndexConfigurer : BeanPostProcessor {
         return bean
     }
 
+    /**
+     * 주어진 [entity]에 첨부된 [MongoIndexDefinitionSource] 어노테이션으로부터 Mongo 인덱스를 생성한다.
+     */
     private fun createIndexesIfNotExisting(
         mongoTemplate: MongoTemplate,
         entity: MongoPersistentEntity<*>,
@@ -58,7 +62,26 @@ class MongoCollectionIndexConfigurer : BeanPostProcessor {
             .computeIfAbsent(database) { ConcurrentHashMap() }
             .computeIfAbsent(collection) { resources.mapNotNull { buildIndexDefinition(it, collection) } }
 
-        // TODO
+        for (indexDefinition in indexDefinitions) {
+            val alreadyExistingIndexInfo = indexOps.indexInfo.find { it.name == indexDefinition.indexName }
+
+            if (alreadyExistingIndexInfo != null) {
+                logInfoAlreadyExistingIndex(
+                    database = database,
+                    collection = collection,
+                    indexName = indexDefinition.indexName,
+                    indexInfo = alreadyExistingIndexInfo,
+                )
+            } else {
+                logInfoCreationStarted(database, collection, indexDefinition)
+                try {
+                    indexOps.ensureIndex(indexDefinition)
+                    logInfoCreationDone(database, collection, indexDefinition)
+                } catch (t: Throwable) {
+                    logWarnCreationFailed(database, collection, indexDefinition, t)
+                }
+            }
+        }
     }
 
     /**
@@ -84,5 +107,51 @@ class MongoCollectionIndexConfigurer : BeanPostProcessor {
         ) ?: return null
 
         return IndexDefinitionFromResource(parseFilenameResult, definition)
+    }
+
+    private fun logInfoAlreadyExistingIndex(
+        database: String,
+        collection: String,
+        indexName: String,
+        indexInfo: IndexInfo,
+    ) {
+        logger.info(
+            "There is already index of database={}, collection={} with name={} : {}",
+            database, collection, indexName, indexInfo,
+        )
+    }
+
+    private fun logInfoCreationStarted(
+        database: String,
+        collection: String,
+        indexDefinition: IndexDefinitionFromResource,
+    ) {
+        logger.info(
+            "Creating index of database={}, collection={} with name={} : {}",
+            database, collection, indexDefinition.indexName, indexDefinition.indexDefinition,
+        )
+    }
+
+    private fun logInfoCreationDone(
+        database: String,
+        collection: String,
+        indexDefinition: IndexDefinitionFromResource,
+    ) {
+        logger.info(
+            "Index of database={}, collection={} with name={} created : {}",
+            database, collection, indexDefinition.indexName, indexDefinition.indexKeys,
+        )
+    }
+
+    private fun logWarnCreationFailed(
+        database: String,
+        collection: String,
+        indexDefinition: IndexDefinitionFromResource,
+        t: Throwable,
+    ) {
+        logger.warn(
+            "Creating index of database={}, collection={} with name={} and keys={} has been failed.",
+            database, collection, indexDefinition.indexName, indexDefinition.indexKeys, t,
+        )
     }
 }
