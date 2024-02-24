@@ -10,12 +10,15 @@ import com.github.wonsim02.infra.mongodb.testcase.document.Document0
 import com.github.wonsim02.infra.mongodb.testcase.document.Document1
 import com.github.wonsim02.infra.mongodb.testcase.document.Document2
 import com.github.wonsim02.infra.mongodb.testcase.document.Document3
+import com.github.wonsim02.infra.mongodb.testcase.document.Document4
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.autoconfigure.domain.EntityScan
@@ -139,6 +142,20 @@ class MongoDocumentScannerTest : InfraMongodbTestBase() {
             }
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = [Document4.DATABASE_NAME_1, Document4.DATABASE_NAME_2])
+    fun `Document class is contained in all MongoMappingContext of databases declared in UseMongoDatabase annotation`(
+        database: String,
+    ) {
+        val mongoMappingContext = assertInstanceOf(
+            MongoMappingContext::class.java,
+            applicationContext.getBean(MongoDatabaseUtils.genForMongoMappingContext(database)),
+        )
+        val persistentEntities = mongoMappingContext.persistentEntities
+
+        assertTrue(persistentEntities.any { it.matches(Document4::class.java, Document4.COLLECTION_NAME) })
+    }
+
     /**
      * 주어진 [MongoPersistentEntity]의 `type` 및 `collection`을 검사한다.
      * @see MongoPersistentEntity.getType
@@ -156,7 +173,12 @@ class MongoDocumentScannerTest : InfraMongodbTestBase() {
 
         @Bean
         fun testDatabaseNamesSupplier(): AdditionalMongoDatabaseNamesSupplier = AdditionalMongoDatabaseNamesSupplier {
-            listOf(Document1.DATABASE_NAME, Document2.DATABASE_NAME)
+            listOf(
+                Document1.DATABASE_NAME,
+                Document2.DATABASE_NAME,
+                Document4.DATABASE_NAME_1,
+                Document4.DATABASE_NAME_2,
+            )
         }
     }
 }
