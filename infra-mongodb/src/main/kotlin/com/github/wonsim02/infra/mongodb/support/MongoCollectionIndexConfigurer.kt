@@ -22,7 +22,7 @@ class MongoCollectionIndexConfigurer : BeanPostProcessor {
     private val resourcePatternResolver = PathMatchingResourcePatternResolver()
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    private val indexDefinitionsCache: ConcurrentMap<String /* database */, ConcurrentMap<String /* collection */, List<IndexDefinitionFromResource>>> =
+    private val indexDefinitionsCache: ConcurrentMap<Class<*> /* entity class */, List<IndexDefinitionFromResource>> =
         ConcurrentHashMap()
 
     override fun postProcessAfterInitialization(bean: Any, beanName: String): Any {
@@ -59,8 +59,7 @@ class MongoCollectionIndexConfigurer : BeanPostProcessor {
         val indexOps = mongoTemplate.indexOps(collection, entity.type)
 
         val indexDefinitions = indexDefinitionsCache
-            .computeIfAbsent(database) { ConcurrentHashMap() }
-            .computeIfAbsent(collection) { resources.mapNotNull { buildIndexDefinition(it, collection) } }
+            .computeIfAbsent(entity.type) { resources.mapNotNull { buildIndexDefinition(it, collection) } }
 
         for (indexDefinition in indexDefinitions) {
             val alreadyExistingIndexInfo = indexOps.indexInfo.find { it.name == indexDefinition.indexName }
