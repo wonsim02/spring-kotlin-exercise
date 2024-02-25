@@ -40,7 +40,8 @@ object MongoIndexDefinitionBuilder {
         jsonStr: String,
         collection: String,
     ): IndexDefinition? {
-        val parsed = Document.parse(jsonStr)
+        val parsed = runCatching { Document.parse(jsonStr) }
+            .getOrElse { return null }
         val keys = parsed[KEYS]?.toDocument() ?: return null
         val indexDefinition = CompoundIndexDefinition(keys)
 
