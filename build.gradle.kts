@@ -58,6 +58,7 @@ subprojects {
 
     dependencies {
         implementation(kotlin("stdlib"))
+        implementation(kotlin("stdlib-jdk8"))
         implementation(kotlin("reflect"))
 
         // https://docs.spring.io/spring-boot/docs/2.7.7/reference/html/configuration-metadata.html#appendix.configuration-metadata.annotation-processor

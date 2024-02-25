@@ -1,6 +1,7 @@
 package com.github.wonsim02.infra.mongodb.config
 
 import com.github.womsim02.common.spring.ProfileAwarePropertySource
+import com.github.wonsim02.infra.mongodb.support.MongoCollectionIndexConfigurer
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -13,6 +14,7 @@ import org.springframework.context.annotation.Import
     AdditionalMongoDatabasesConfiguration::class,
     CustomizingMongoClientConfiguration::class,
     PrimaryMongoDatabaseConfiguration::class,
+    MongoCollectionIndexConfigurer::class,
 )
 @ProfileAwarePropertySource(
     locations = [
