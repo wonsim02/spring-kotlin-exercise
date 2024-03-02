@@ -30,7 +30,11 @@ internal sealed class MongoDocumentPropertyTypeParseResult {
     class NonPrimitive(
         override val fieldName: String,
         val fieldTypeElement: TypeElement,
-    ) : MongoDocumentPropertyTypeParseResult()
+    ) : MongoDocumentPropertyTypeParseResult() {
+
+        val generatedClassName: String
+            get() = fieldName.take(1).uppercase() + fieldName.drop(1)
+    }
 
     companion object {
 
