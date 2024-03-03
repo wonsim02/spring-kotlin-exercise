@@ -1,5 +1,7 @@
 package com.github.wonsim02.infra.mongodb.testutil
 
+import com.github.wonsim02.infra.mongodb.InfraMongodbTestBase
+import org.springframework.test.context.DynamicPropertyRegistry
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.MongoDBContainer
 import org.testcontainers.containers.Network
@@ -10,9 +12,9 @@ import org.testcontainers.utility.DockerImageName
  */
 class CustomMongoDBContainer(
     dockerImageName: DockerImageName,
-    database: String,
-    username: String,
-    password: String,
+    private val database: String,
+    private val username: String,
+    private val password: String,
 ) : GenericContainer<CustomMongoDBContainer>(dockerImageName) {
 
     init {
@@ -23,13 +25,45 @@ class CustomMongoDBContainer(
         withNetwork(Network.SHARED)
     }
 
+    constructor() : this(
+        dockerImageName = DockerImageName
+            .parse("public.ecr.aws/docker/library/mongo:4.0")
+            .asCompatibleSubstituteFor("mongo"),
+        database = InfraMongodbTestBase.DATABASE,
+        username = InfraMongodbTestBase.USERNAME,
+        password = InfraMongodbTestBase.PASSWORD,
+    )
+
     /**
      * 실제 컨데이너 외부에서 접속 가능한 포트를 반환한다.
      * @see <a href="https://java.testcontainers.org/features/networking/">
      *     Networking and communicating with containers
      *     </a>
      */
-    fun getMappedPorts(): List<Int> {
+    private fun getMappedPorts(): List<Int> {
         return exposedPorts.map(this::getMappedPort)
+    }
+
+    private val springPropertyGetterMap: Map<String, () -> Any> = mapOf(
+        "spring.data.mongodb.host" to ::getHost,
+        "spring.data.mongodb.port" to { getMappedPorts().first() },
+        "spring.data.mongodb.database" to { database },
+        "spring.data.mongodb.username" to { username },
+        "spring.data.mongodb.password" to { password },
+        "CONF_MONGODB_AUTHENTICATION_DATABASE" to { "admin" },
+    )
+
+    fun provideMongoDbProperties(): Array<String> {
+        return springPropertyGetterMap
+            .map { (propertyKey, propertyValueGetter) ->
+                "--$propertyKey=${propertyValueGetter()}"
+            }
+            .toTypedArray()
+    }
+
+    fun setTestContainerProperties(registry: DynamicPropertyRegistry) {
+        for ((propertyKey, propertyValueGetter) in springPropertyGetterMap) {
+            registry.add(propertyKey, propertyValueGetter)
+        }
     }
 }
