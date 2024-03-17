@@ -20,7 +20,7 @@ class CustomizingMongoClientConfigurationTest : InfraMongodbTestBase() {
     fun `retryWrites value of MongoClientImpl set as expected`(retryWrites: Boolean) {
         val profile = "test-retry-writes-$retryWrites"
         val profileArg = "--spring.profiles.active=$profile"
-        val application = runApplication<App>(profileArg, *provideMongoDbProperties())
+        val application = runApplication<App>(profileArg, *testContainer.provideMongoDbProperties())
 
         // infra-mongodb-config-test-retry-writes-*.yml 파일에 명시된 대로 값이 설정되어 있음
         val additionalMongodbProperties = application.getBean(AdditionalMongodbProperties::class.java)
