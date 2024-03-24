@@ -4,6 +4,7 @@ import org.jlleitschuh.gradle.ktlint.KtlintExtension
 
 plugins {
     idea
+    `java-test-fixtures`
     kotlin("jvm") version Ver.kotlin
     kotlin("kapt") version Ver.kotlin
 
@@ -31,6 +32,7 @@ subprojects {
     version = rootProject.version
 
     apply(plugin = Plugins.idea)
+    apply(plugin = Plugins.javaTestFixtures)
     apply(plugin = Plugins.kotlin)
     apply(plugin = Plugins.kotlinJpa)
     apply(plugin = Plugins.kotlinKapt)

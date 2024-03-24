@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.github.wonsim02.infra.jpa.config.InfraJpaConfiguration
