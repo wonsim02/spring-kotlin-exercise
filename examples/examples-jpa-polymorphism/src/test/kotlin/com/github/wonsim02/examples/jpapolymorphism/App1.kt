@@ -1,0 +1,11 @@
+package com.github.wonsim02.examples.jpapolymorphism
+
+import com.github.wonsim02.examples.jpapolymorphism.entity1.ExamplesJpaPolymorphismEntity1Configuration
+import org.springframework.boot.SpringBootConfiguration
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration
+import org.springframework.context.annotation.Import
+
+@SpringBootConfiguration
+@EnableAutoConfiguration
+@Import(ExamplesJpaPolymorphismEntity1Configuration::class)
+class App1
