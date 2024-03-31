@@ -1,0 +1,23 @@
+spring:
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${CONF_RDB_HOST}:${CONF_RDB_PORT}/${CONF_RDB_DATABASE}
+    username: ${CONF_RDB_USERNAME}
+    password: ${CONF_RDB_PASSWORD}
+    hikari:
+      minimum-idle: 10
+      idle-timeout: 30000
+      connection-timeout: 30000
+      connection-test-query: SELECT 1
+      max-lifetime: 2000000
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate.jdbc.batch_size: 10
+      hibernate.session.events.log.LOG_QUERIES_SLOWER_THAN_MS: 50
+      hibernate.query.plan_cache_max_size: 256

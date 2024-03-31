@@ -1,5 +1,14 @@
 import org.gradle.kotlin.dsl.DependencyHandlerScope
 
+fun DependencyHandlerScope.flyway(
+    module: String,
+    version: String = Ver.flyway,
+): String = "org.flywaydb:flyway-$module:$version"
+
+fun DependencyHandlerScope.postgres(
+    version: String = Ver.postgres,
+): String = "org.postgresql:postgresql:$version"
+
 fun DependencyHandlerScope.spring(
     module: String,
 ): String = "org.springframework:spring-$module"
