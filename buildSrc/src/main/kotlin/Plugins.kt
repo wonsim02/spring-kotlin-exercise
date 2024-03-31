@@ -3,6 +3,7 @@ object Plugins {
     const val idea = "idea"
     const val javaTestFixtures = "java-test-fixtures"
     const val kotlin = "kotlin"
+    const val kotlinSerialization = "org.jetbrains.kotlin.plugin.serialization"
     const val kotlinJpa = "org.jetbrains.kotlin.plugin.jpa"
     const val kotlinKapt = "org.jetbrains.kotlin.kapt"
     const val kotlinSpring = "org.jetbrains.kotlin.plugin.spring"
