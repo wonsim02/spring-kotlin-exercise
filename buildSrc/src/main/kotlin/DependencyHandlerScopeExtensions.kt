@@ -5,6 +5,14 @@ fun DependencyHandlerScope.flyway(
     version: String = Ver.flyway,
 ): String = "org.flywaydb:flyway-$module:$version"
 
+fun DependencyHandlerScope.hibernate(
+    module: String,
+): String = "org.hibernate:hibernate-$module"
+
+fun DependencyHandlerScope.hibernateTypes(
+    version: String = Ver.hibernateTypes,
+): String = "com.vladmihalcea:hibernate-types-$version"
+
 fun DependencyHandlerScope.kotlinxSerialization(
     module: String,
     version: String = Ver.kotlinxSerialization,
@@ -18,6 +26,11 @@ fun DependencyHandlerScope.okhttp(
 fun DependencyHandlerScope.postgres(
     version: String = Ver.postgres,
 ): String = "org.postgresql:postgresql:$version"
+
+fun DependencyHandlerScope.queryDsl(
+    module: String,
+    version: String = Ver.queryDsl,
+) = "com.querydsl:$module:$version"
 
 fun DependencyHandlerScope.spring(
     module: String,
