@@ -8,6 +8,7 @@ object Ver {
     const val ktlintPlugin = "10.2.1"
     const val okhttp = "4.9.3"
     const val postgres = "42.3.8"
+    const val queryDsl = "5.0.0"
     const val springBoot = "2.7.7"
     const val springDependencyManagement = "1.1.4"
     const val testContainers = "1.19.4"

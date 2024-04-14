@@ -27,6 +27,11 @@ fun DependencyHandlerScope.postgres(
     version: String = Ver.postgres,
 ): String = "org.postgresql:postgresql:$version"
 
+fun DependencyHandlerScope.queryDsl(
+    module: String,
+    version: String = Ver.queryDsl,
+) = "com.querydsl:$module:$version"
+
 fun DependencyHandlerScope.spring(
     module: String,
 ): String = "org.springframework:spring-$module"
