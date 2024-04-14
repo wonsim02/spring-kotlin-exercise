@@ -21,3 +21,5 @@ spring:
       hibernate.jdbc.batch_size: 10
       hibernate.session.events.log.LOG_QUERIES_SLOWER_THAN_MS: 50
       hibernate.query.plan_cache_max_size: 256
+      # registers custom postgres dialect
+      hibernate.dialect: "com.github.wonsim02.infra.jpa.config.CustomPostgresDialect"
