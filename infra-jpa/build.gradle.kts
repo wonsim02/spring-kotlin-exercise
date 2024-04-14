@@ -1,7 +1,9 @@
 dependencies {
     api(springBoot("starter-data-jpa"))
     runtimeOnly(flyway("core"))
-    runtimeOnly(postgres())
+    api(hibernate("core"))
+    api(hibernateTypes())
+    implementation(postgres())
     implementation(project(":common"))
 
     testFixturesApi(platform(testContainersBom()))
