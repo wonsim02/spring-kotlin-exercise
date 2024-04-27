@@ -1,0 +1,29 @@
+@startuml
+
+skinparam defaultTextAlignment bottom
+skinparam linetype polyline
+
+map tableA {
+    1 => "foo"
+    2 => "bar"
+    => null
+    4 => "hello"
+}
+
+map tableB {
+    1 => null
+    2 => null
+    3 => "baz"
+    4 => null
+}
+
+map tableA_pk_sequence {
+    next => 5
+}
+
+tableA::1 -> tableB::1
+tableA::4 -> tableB::4
+
+caption Arrows mean data migration from table A to table B.
+
+@enduml
