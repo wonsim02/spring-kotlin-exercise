@@ -1,0 +1,105 @@
+@startuml
+
+package model {
+    class SinglePaymentOrder {
+        override val id: Long
+        override val userId: Long
+        override val type: Long
+        val singlePaymentProductId : Long
+        val paidAmount : Long
+        val paidAt : Instant
+    }
+
+    abstract class Order {
+        abstract val id: Long
+        abstract val userId: Long
+        abstract val type: Enum
+    }
+
+    class SubscriptionOrder {
+        override val id: Long
+        override val userId: Long
+        override val type: Long
+        val subscriptionProductId : Long
+        val paymentAmountPerMonth : Long
+        val lastPaidAt : Instant
+    }
+}
+
+package entity1 {
+    class JpaSinglePaymentOrderEntity {
+        val id : Long
+        val singlePaymentProductId : Long
+        val paidAmount : Long
+        val paidAt : Instant
+    }
+
+    class JpaOrderEntity {
+        val id : Long
+        val userId : Long
+        val type : Enum
+    }
+
+    class JpaSubscriptionOrderEntity {
+        val id : Long
+        val subscriptionProductId : Long
+        val paymentAmountPerMonth : Long
+        val lastPaidAt : Instant
+    }
+}
+
+database DB {
+    json single_payment_order {
+        "id" : "bigint not null primary key",
+        "single_payment_product_id" : "bigint not null",
+        "paid_amount" : "int not null",
+        "paid_at" : "timestamptz not null"
+    }
+
+    json order {
+        "id" : "bigserial primary key",
+        "user_id" : "bigint not null",
+        "type" : "text not null"
+    }
+
+
+    json subscription_order {
+        "id" : "bigint not null primary key",
+        "subscription_product_id" : "bigint not null",
+        "payment_amount_per_month" : "int not null",
+        "last_paid_at" : "timestamptz not null"
+    }
+}
+
+'inside model'
+
+Order -d-> "inherits" SinglePaymentOrder
+Order -d-> "inherits" SubscriptionOrder
+
+'inside entity1'
+
+JpaOrderEntity -[hidden]l- JpaSinglePaymentOrderEntity
+JpaOrderEntity -[hidden]r- JpaSubscriptionOrderEntity
+
+'inside DB'
+
+order -[hidden]l- single_payment_order
+order -[hidden]r- subscription_order
+
+'model - entity1'
+
+SinglePaymentOrder <-d-> JpaSinglePaymentOrderEntity
+SinglePaymentOrder <-d-> JpaOrderEntity
+SubscriptionOrder <-d-> JpaSubscriptionOrderEntity
+SubscriptionOrder <-d-> JpaOrderEntity
+
+'entity1 - DB'
+
+JpaSinglePaymentOrderEntity <-d-> single_payment_order
+JpaOrderEntity <-d-> order
+JpaSubscriptionOrderEntity <-d-> subscription_order
+
+title Before Using @Inheritance annotation
+caption Double arrows mean data references for conversions.
+
+@enduml
