@@ -6,6 +6,8 @@
 
 ![](examples-share-row-id-sequence.svg)
 
+Also see : [서로 다른 2개의 테이블이 동일한 PK를 가지지 않도록 DDL을 작성한 예시 소개 #11](https://github.com/wonsim02/spring-kotlin-exercise/pull/11)
+
 ## 테스트 실행 방법
 
 ### Windows
