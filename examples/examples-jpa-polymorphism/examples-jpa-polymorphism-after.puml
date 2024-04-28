@@ -4,9 +4,9 @@ package model {
     class SinglePaymentOrder {
         override val id: Long
         override val userId: Long
-        override val type: Long
+        override val type: Enum
         val singlePaymentProductId : Long
-        val paidAmount : Long
+        val paidAmount : Int
         val paidAt : Instant
     }
 
@@ -19,9 +19,9 @@ package model {
     class SubscriptionOrder {
         override val id: Long
         override val userId: Long
-        override val type: Long
+        override val type: Enum
         val subscriptionProductId : Long
-        val paymentAmountPerMonth : Long
+        val paymentAmountPerMonth : Int
         val lastPaidAt : Instant
     }
 }
@@ -31,7 +31,7 @@ package entity2 {
         override val id : Long
         override val userId : Long
         val singlePaymentProductId : Long
-        val paidAmount : Long
+        val paidAmount : Int
         val paidAt : Instant
     }
 
@@ -44,7 +44,7 @@ package entity2 {
         override val id : Long
         override val userId : Long
         val subscriptionProductId : Long
-        val paymentAmountPerMonth : Long
+        val paymentAmountPerMonth : Int
         val lastPaidAt : Instant
     }
 }
