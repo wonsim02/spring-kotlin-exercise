@@ -22,6 +22,7 @@ map tableA_pk_sequence {
 }
 
 tableA::1 -> tableB::1
+tableA::2 -> tableB::2
 tableA::4 -> tableB::4
 
 caption Arrows mean data migration from table A to table B.
