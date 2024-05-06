@@ -1,2 +1,3 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.github.wonsim02.infra.redis.config.CustomizingRedisPropertiesConfiguration,\
 com.github.wonsim02.infra.redis.config.InfraRedisConfiguration
