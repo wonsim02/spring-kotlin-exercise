@@ -32,6 +32,11 @@ fun DependencyHandlerScope.queryDsl(
     version: String = Ver.queryDsl,
 ) = "com.querydsl:$module:$version"
 
+fun DependencyHandlerScope.retrofit(
+    module: String,
+    version: String = Ver.retrofit,
+): String = "com.squareup.retrofit2:$module:$version"
+
 fun DependencyHandlerScope.spring(
     module: String,
 ): String = "org.springframework:spring-$module"

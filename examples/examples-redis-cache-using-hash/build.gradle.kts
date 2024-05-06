@@ -15,6 +15,8 @@ dependencies {
     implementation(queryDsl("querydsl-jpa"))
     kapt(queryDsl("querydsl-apt", version = "${Ver.queryDsl}:jpa"))
 
+    testImplementation(retrofit("retrofit"))
+    testImplementation(retrofit("converter-jackson"))
     testImplementation(testFixtures(project(":infra-jpa")))
     testImplementation(testFixtures(project(":infra-redis")))
 }
