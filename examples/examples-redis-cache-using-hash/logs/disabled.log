@@ -1,0 +1,3 @@
+2024-05-06 19:50:28.528  INFO 87819 --- [    Test worker] oryCountsCacheConfigurationTest$Disabled : Total elapsed time is 694997 ms.
+2024-05-06 19:50:28.528  INFO 87819 --- [    Test worker] oryCountsCacheConfigurationTest$Disabled : Total elapsed time of createWatchHistory is 6719 ms.
+2024-05-06 19:50:28.528  INFO 87819 --- [    Test worker] oryCountsCacheConfigurationTest$Disabled : Total elapsed time of listPlyLists is 688267 ms.

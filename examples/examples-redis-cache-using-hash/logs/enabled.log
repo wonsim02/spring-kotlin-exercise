@@ -1,0 +1,3 @@
+2024-05-06 20:07:42.742  INFO 87895 --- [    Test worker] toryCountsCacheConfigurationTest$Enabled : Total elapsed time is 494631 ms.
+2024-05-06 20:07:42.743  INFO 87895 --- [    Test worker] toryCountsCacheConfigurationTest$Enabled : Total elapsed time of createWatchHistory is 7947 ms.
+2024-05-06 20:07:42.743  INFO 87895 --- [    Test worker] toryCountsCacheConfigurationTest$Enabled : Total elapsed time of listPlyLists is 486660 ms.
