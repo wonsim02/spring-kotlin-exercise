@@ -5,6 +5,7 @@ import org.jlleitschuh.gradle.ktlint.KtlintExtension
 plugins {
     idea
     `java-test-fixtures`
+    kotlin("plugin.allopen") version Ver.kotlin
     kotlin("jvm") version Ver.kotlin
     kotlin("kapt") version Ver.kotlin
 
