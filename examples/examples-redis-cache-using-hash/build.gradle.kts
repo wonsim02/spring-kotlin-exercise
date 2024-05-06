@@ -20,3 +20,21 @@ dependencies {
     testImplementation(testFixtures(project(":infra-jpa")))
     testImplementation(testFixtures(project(":infra-redis")))
 }
+
+tasks {
+    val testBaseClass = "com.github.wonsim02.examples.rediscacheusinghash.WatchingHistoryCountsCacheConfigurationTest"
+
+    register<Test>("watchingHistoryCountsCacheEnabledTest") {
+        group = "verification"
+        filter {
+            includeTest("$testBaseClass\$Enabled", null)
+        }
+    }
+
+    register<Test>("watchingHistoryCountsCacheDisabledTest") {
+        group = "verification"
+        filter {
+            includeTest("$testBaseClass\$Disabled", null)
+        }
+    }
+}
