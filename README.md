@@ -9,3 +9,4 @@ Kotlin Spring을 이용하여 개발하면서 추가한 확장 기능 혹은 특
   - `:examples-use-hibernate-impl` [README.md](examples/examples-use-hibernate-impl/README.md)
 - `:infra-jpa` [README.md](infra-jpa/README.md)
 - `:infra-mongodb` [README.md](infra-mongodb/README.md)
+- `:infra-redis` [README.md](infra-redis/README.md)

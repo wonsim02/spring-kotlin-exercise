@@ -1,0 +1,17 @@
+spring:
+  redis:
+    database: 0
+    host: ${CONF_REDIS_HOST}
+    port: ${CONF_REDIS_PORT}
+    password: ${CONF_REDIS_PASSWORD}
+  data:
+    redis:
+      repositories:
+        enabled: false
+
+com:
+  github:
+    wonsim02:
+      infra:
+        redis:
+          clustered: ${CONF_REDIS_CLUSTERED}
