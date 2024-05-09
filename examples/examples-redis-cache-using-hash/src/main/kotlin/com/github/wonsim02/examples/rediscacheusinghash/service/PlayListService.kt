@@ -87,5 +87,5 @@ class PlayListService(
         }
     }
 
-    class InvalidUserIdException(userId: Long) : RuntimeException("Invalid userId=$userId recevied.")
+    class InvalidUserIdException(userId: Long) : RuntimeException("Invalid userId=$userId received.")
 }
