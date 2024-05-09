@@ -1,6 +1,5 @@
 package com.github.wonsim02.examples.rediscacheusinghash.service
 
-import com.github.wonsim02.examples.rediscacheusinghash.cache.WatchHistoryCountsCache
 import com.github.wonsim02.examples.rediscacheusinghash.dto.WatchHistoryCounts
 import com.github.wonsim02.examples.rediscacheusinghash.model.WatchHistory
 import com.github.wonsim02.examples.rediscacheusinghash.repository.WatchHistoryRepository
@@ -10,7 +9,6 @@ import org.springframework.stereotype.Service
 class WatchHistoryService(
     private val userService: UserService,
     private val videoService: VideoService,
-    private val watchHistoryCountsCache: WatchHistoryCountsCache?,
     private val watchHistoryRepository: WatchHistoryRepository,
 ) {
 
@@ -32,7 +30,6 @@ class WatchHistoryService(
             throw InvalidVideoIdException(videoId)
         }
 
-        watchHistoryCountsCache?.evictByUserId(userId)
         return watchHistoryRepository.create(userId, videoId)
     }
 
@@ -48,20 +45,10 @@ class WatchHistoryService(
         }
         if (videoIds.isEmpty()) return mapOf()
 
-        val cacheByUserId = watchHistoryCountsCache?.getByUserId(userId)
-        val cached = cacheByUserId?.get(videoIds) ?: mapOf()
-        val notCachedIds = videoIds.toSet() - cached.keys
-        if (notCachedIds.isEmpty()) return cached
-
-        val fromRepository = watchHistoryRepository.countByUserIdAndVideoIds(
+        return watchHistoryRepository.countByUserIdAndVideoIds(
             userId = userId,
-            videoIds = notCachedIds,
+            videoIds = videoIds,
         )
-        val videoIdsWithZeroCounts = notCachedIds - fromRepository.keys
-        val toBePutInCache = fromRepository + videoIdsWithZeroCounts.associateWith { 0L }
-        cacheByUserId?.put(toBePutInCache)
-
-        return cached + fromRepository
     }
 
     class InvalidUserIdException(userId: Long) : RuntimeException("Invalid userId=$userId given.")
