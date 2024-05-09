@@ -1,12 +1,12 @@
 package com.github.wonsim02.examples.rediscacheusinghash.cache
 
-import com.github.wonsim02.examples.rediscacheusinghash.dto.WatchHistoryCounts
+import com.github.wonsim02.examples.rediscacheusinghash.dto.WatchedVideosCounts
 import org.springframework.data.redis.cache.CacheKeyPrefix
 import org.springframework.data.redis.core.RedisTemplate
 import java.io.Serializable
 import java.time.Duration
 
-class WatchHistoryCountsCache(
+class WatchedVideosCountsCache(
     cacheKeyPrefix: CacheKeyPrefix,
     private val redisTemplate: RedisTemplate<String, ByteArray>,
 ) {
@@ -26,33 +26,33 @@ class WatchHistoryCountsCache(
         private val cacheKey: String,
     ) {
 
-        fun get(videoIds: Collection<Long>): WatchHistoryCounts {
-            if (videoIds.isEmpty()) return mapOf()
+        fun get(playListIds: Collection<Long>): WatchedVideosCounts {
+            if (playListIds.isEmpty()) return mapOf()
 
             return redisTemplate
-                .opsForHash<Long, WatchHistoryCountsEntry>()
-                .multiGet(cacheKey, videoIds)
+                .opsForHash<Long, WatchedVideosCountsEntry>()
+                .multiGet(cacheKey, playListIds)
                 .asSequence()
                 .filterNotNull()
-                .associate { it.videoId to it.count }
+                .associate { it.playListId to it.count }
         }
 
-        fun put(watchHistoryCounts: WatchHistoryCounts) {
+        fun put(watchHistoryCounts: WatchedVideosCounts) {
             if (watchHistoryCounts.isEmpty()) return
-            val entries = watchHistoryCounts.mapValues { (videoId, count) ->
-                WatchHistoryCountsEntry(videoId = videoId, count = count)
+            val entries = watchHistoryCounts.mapValues { (playListId, count) ->
+                WatchedVideosCountsEntry(playListId = playListId, count = count)
             }
 
             redisTemplate
-                .opsForHash<Long, WatchHistoryCountsEntry>()
+                .opsForHash<Long, WatchedVideosCountsEntry>()
                 .putAll(cacheKey, entries)
             redisTemplate.expire(cacheKey, cacheDuration)
         }
     }
 
-    data class WatchHistoryCountsEntry(
-        val videoId: Long,
-        val count: Long,
+    data class WatchedVideosCountsEntry(
+        val playListId: Long,
+        val count: Int,
     ) : Serializable
 
     companion object {

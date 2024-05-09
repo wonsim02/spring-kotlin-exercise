@@ -2,10 +2,10 @@ package com.github.wonsim02.examples.rediscacheusinghash
 
 import com.fasterxml.jackson.module.kotlin.jsonMapper
 import com.fasterxml.jackson.module.kotlin.kotlinModule
-import com.github.wonsim02.examples.rediscacheusinghash.cache.WatchHistoryCountsCache
+import com.github.wonsim02.examples.rediscacheusinghash.cache.WatchedVideosCountsCache
 import com.github.wonsim02.examples.rediscacheusinghash.client.RedisCacheUsingHashApiClient
 import com.github.wonsim02.examples.rediscacheusinghash.config.AddingTestDataRunner
-import com.github.wonsim02.examples.rediscacheusinghash.config.WatchHistoryCountCacheConfiguration.Companion.WATCH_HISTORY_COUNT_CACHE_PROPERTY_PREFIX
+import com.github.wonsim02.examples.rediscacheusinghash.config.WatchedVideosCountCacheConfiguration.Companion.WATCHED_VIDEOS_COUNT_CACHE_PROPERTY_PREFIX
 import com.github.wonsim02.examples.rediscacheusinghash.repository.WatchHistoryRepository
 import okhttp3.OkHttpClient
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -19,7 +19,7 @@ import kotlin.random.Random
 import kotlin.system.measureTimeMillis
 
 /**
- * [WatchHistoryCountsCache] 빈 등록 여부에 따른 성능 테스트.
+ * [WatchedVideosCountsCache] 빈 등록 여부에 따른 성능 테스트.
  * 테스트 전에 다음 사전 작업을 진행한다:
  * 1. [AddingTestDataRunner]를 통해 테스트에서 사용할 `User`, `Video` 및 `PlayList` 등록
  * 2. 랜덤 `userId` 및 `videoId`로 `WatchHistory` 행 [NUM_WATCH_HISTORIES]개 추가
@@ -35,16 +35,16 @@ import kotlin.system.measureTimeMillis
  * 2. [RedisCacheUsingHashApiClient.createWatchHistory] 응답 시간 총합
  * 3. [RedisCacheUsingHashApiClient.listPlayLists] 응답 시간 총합
  *
- * @property watchHistoryCacheEnabled [WatchHistoryCountsCache] 빈 등록 여부
+ * @property watchHistoryCacheEnabled [WatchedVideosCountsCache] 빈 등록 여부
  */
-abstract class WatchingHistoryCountsCacheConfigurationTest : ExamplesRedisCacheUsingHashTestBase() {
+abstract class WatchedVideosCountsCacheConfigurationTest : ExamplesRedisCacheUsingHashTestBase() {
 
     protected abstract val watchHistoryCacheEnabled: Boolean
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     final override val args: Array<out String>
         get() = arrayOf(
-            "--$WATCH_HISTORY_COUNT_CACHE_PROPERTY_PREFIX.enabled=$watchHistoryCacheEnabled",
+            "--$WATCHED_VIDEOS_COUNT_CACHE_PROPERTY_PREFIX.enabled=$watchHistoryCacheEnabled",
             "--server.port=0"
         )
 
@@ -124,12 +124,12 @@ abstract class WatchingHistoryCountsCacheConfigurationTest : ExamplesRedisCacheU
         }
     }
 
-    class Enabled : WatchingHistoryCountsCacheConfigurationTest() {
+    class Enabled : WatchedVideosCountsCacheConfigurationTest() {
 
         override val watchHistoryCacheEnabled = true
     }
 
-    class Disabled : WatchingHistoryCountsCacheConfigurationTest() {
+    class Disabled : WatchedVideosCountsCacheConfigurationTest() {
 
         override val watchHistoryCacheEnabled = false
     }

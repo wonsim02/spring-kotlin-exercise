@@ -1,6 +1,6 @@
 package com.github.wonsim02.examples.rediscacheusinghash.config
 
-import com.github.wonsim02.examples.rediscacheusinghash.cache.WatchHistoryCountsCache
+import com.github.wonsim02.examples.rediscacheusinghash.cache.WatchedVideosCountsCache
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -9,23 +9,23 @@ import org.springframework.data.redis.core.RedisTemplate
 
 @Configuration
 @ConditionalOnProperty(
-    prefix = WatchHistoryCountCacheConfiguration.WATCH_HISTORY_COUNT_CACHE_PROPERTY_PREFIX,
+    prefix = WatchedVideosCountCacheConfiguration.WATCHED_VIDEOS_COUNT_CACHE_PROPERTY_PREFIX,
     name = ["enabled"],
     havingValue = "true",
     matchIfMissing = false,
 )
-class WatchHistoryCountCacheConfiguration {
+class WatchedVideosCountCacheConfiguration {
 
     @Bean
-    fun watchHistoryCountsCache(
+    fun watchedVideosCountsCache(
         cacheKeyPrefix: CacheKeyPrefix,
         redisTemplate: RedisTemplate<String, ByteArray>,
-    ): WatchHistoryCountsCache {
-        return WatchHistoryCountsCache(cacheKeyPrefix, redisTemplate)
+    ): WatchedVideosCountsCache {
+        return WatchedVideosCountsCache(cacheKeyPrefix, redisTemplate)
     }
 
     companion object {
 
-        const val WATCH_HISTORY_COUNT_CACHE_PROPERTY_PREFIX = "com.github.wonsim02.examples.redis-cache-using-hash.watch-history-counts-cache"
+        const val WATCHED_VIDEOS_COUNT_CACHE_PROPERTY_PREFIX = "com.github.wonsim02.examples.redis-cache-using-hash.watched-videos-counts-cache"
     }
 }
