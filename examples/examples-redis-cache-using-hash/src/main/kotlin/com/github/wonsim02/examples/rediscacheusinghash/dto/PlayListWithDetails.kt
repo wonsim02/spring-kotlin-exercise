@@ -13,15 +13,13 @@ data class PlayListWithDetails(
     constructor(
         playList: PlayList,
         videoMap: Map<Long, Video>,
-        watchHistoryCounts: WatchHistoryCounts,
+        watchedVideosCounts: WatchedVideosCounts,
     ) : this(
         id = playList.id,
         title = playList.title,
         videos = playList
             .videoIds
             .map { videoMap[it] ?: throw NoSuchElementException() },
-        watchedVideosCount = playList
-            .videoIds
-            .count { videoId -> watchHistoryCounts[videoId]?.let { it > 0 } ?: false },
+        watchedVideosCount = watchedVideosCounts[playList.id] ?: 0,
     )
 }
