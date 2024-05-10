@@ -1,0 +1,3 @@
+2024-05-10 09:28:00.236  INFO 18603 --- [    Test worker] deosCountsCacheConfigurationTest$Enabled : Total elapsed time is 330265 ms.
+2024-05-10 09:28:00.236  INFO 18603 --- [    Test worker] deosCountsCacheConfigurationTest$Enabled : Total elapsed time of createWatchHistory is 10024 ms.
+2024-05-10 09:28:00.236  INFO 18603 --- [    Test worker] deosCountsCacheConfigurationTest$Enabled : Total elapsed time of listPlyLists is 320217 ms.

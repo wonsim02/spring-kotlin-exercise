@@ -1,0 +1,3 @@
+2024-05-10 08:59:47.177  INFO 18430 --- [    Test worker] eosCountsCacheConfigurationTest$Disabled : Total elapsed time is 832301 ms.
+2024-05-10 08:59:47.177  INFO 18430 --- [    Test worker] eosCountsCacheConfigurationTest$Disabled : Total elapsed time of createWatchHistory is 7108 ms.
+2024-05-10 08:59:47.177  INFO 18430 --- [    Test worker] eosCountsCacheConfigurationTest$Disabled : Total elapsed time of listPlyLists is 825172 ms.

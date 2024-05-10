@@ -5,6 +5,7 @@ Kotlin Spring을 이용하여 개발하면서 추가한 확장 기능 혹은 특
 - `:common` [README.md](common/README.md)
 - `:examples`
   - `:examples-jpa-polymorphism` [README.md](examples/examples-jpa-polymorphism/README.md)
+  - `:examples-redis-cache-using-hash` [README.md](examples/examples-redis-cache-using-hash/README.md)
   - `:examples-share-row-id-sequence` [README.md](examples/examples-share-row-id-sequence/README.md)
   - `:examples-use-hibernate-impl` [README.md](examples/examples-use-hibernate-impl/README.md)
 - `:infra-jpa` [README.md](infra-jpa/README.md)

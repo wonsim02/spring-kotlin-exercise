@@ -1,0 +1,7 @@
+spring:
+  cache:
+    type: redis
+  flyway:
+    schemas: public
+  main:
+    web-application-type: servlet
