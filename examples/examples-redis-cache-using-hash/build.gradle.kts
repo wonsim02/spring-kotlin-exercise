@@ -22,16 +22,16 @@ dependencies {
 }
 
 tasks {
-    val testBaseClass = "com.github.wonsim02.examples.rediscacheusinghash.WatchingHistoryCountsCacheConfigurationTest"
+    val testBaseClass = "com.github.wonsim02.examples.rediscacheusinghash.WatchedVideosCountsCacheConfigurationTest"
 
-    register<Test>("watchingHistoryCountsCacheEnabledTest") {
+    register<Test>("watchedVideosCountsCacheEnabledTest") {
         group = "verification"
         filter {
             includeTest("$testBaseClass\$Enabled", null)
         }
     }
 
-    register<Test>("watchingHistoryCountsCacheDisabledTest") {
+    register<Test>("watchedVideosCountsCacheDisabledTest") {
         group = "verification"
         filter {
             includeTest("$testBaseClass\$Disabled", null)

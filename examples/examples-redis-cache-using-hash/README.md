@@ -21,28 +21,28 @@ fun multiGet(videoIds: Collection<Long>): Map<Long, Video> {
 }
 ```
 
-## `hget` 및 `hset` 명렁어를 이용한 응답 시간 최적화 (`WatchHistoryCountsCache`)
+## `hget` 및 `hset` 명렁어를 이용한 응답 시간 최적화 (`WatchedVideosCountsCache`)
 
 ```kotlin
-fun get(videoIds: Collection<Long>): WatchHistoryCounts {
-    if (videoIds.isEmpty()) return mapOf()
+fun get(playListIds: Collection<Long>): WatchedVideosCounts {
+    if (playListIds.isEmpty()) return mapOf()
 
     return redisTemplate
-        .opsForHash<Long, WatchHistoryCountsEntry>()
-        .multiGet(cacheKey, videoIds)
+        .opsForHash<Long, WatchedVideosCountsEntry>()
+        .multiGet(cacheKey, playListIds)
         .asSequence()
         .filterNotNull()
-        .associate { it.videoId to it.count }
+        .associate { it.playListId to it.count }
 }
 
-fun put(watchHistoryCounts: WatchHistoryCounts) {
+fun put(watchHistoryCounts: WatchedVideosCounts) {
     if (watchHistoryCounts.isEmpty()) return
-    val entries = watchHistoryCounts.mapValues { (videoId, count) ->
-        WatchHistoryCountsEntry(videoId = videoId, count = count)
+    val entries = watchHistoryCounts.mapValues { (playListId, count) ->
+        WatchedVideosCountsEntry(playListId = playListId, count = count)
     }
 
     redisTemplate
-        .opsForHash<Long, WatchHistoryCountsEntry>()
+        .opsForHash<Long, WatchedVideosCountsEntry>()
         .putAll(cacheKey, entries)
     redisTemplate.expire(cacheKey, cacheDuration)
 }
@@ -50,15 +50,15 @@ fun put(watchHistoryCounts: WatchHistoryCounts) {
 
 ## 테스트 실행 방법
 
-`WatchingHistoryCountsCacheConfigurationTest`의 서브클래스로 `WatchHistoryCountsCache` 빈이
+`WatchedVideosCountsCacheConfigurationTest`의 서브클래스로 `WatchedVideosCountsCache` 빈이
 등록되어 있을 때와 없을 때 2가지 경우에 대한 테스트 클래스가 작성되어 있다:
 
 - `WatchHistoryCountsCache` 빈 등록됨 :
   - class : `Enabled`
-  - gradle task : `:watchingHistoryCountsCacheEnabledTest`
+  - gradle task : `:watchedVideosCountsCacheEnabledTest`
 - `WatchHistoryCountsCache` 빈이 등록되지 않음 :
   - class : `Disabled`
-  - gradle task : `:watchingHistoryCountsCacheDisabledTest`
+  - gradle task : `:watchedVideosCountsCacheDisabledTest`
 
 실행할 테스트를 선택한 다음 다음 명령어로 테스트 실행이 가능하다:
 
@@ -80,7 +80,7 @@ fun put(watchHistoryCounts: WatchHistoryCounts) {
 - [Enabled Test Log](logs/enabled.log)
 - [Disabled Test Log](logs/disabled.log)
 
-| `WatchHistoryCountsCache` enabled | GET `/playlists` | PUT `/watch-histories` |
-|-----------------------------------|------------------|------------------------|
-| true                              | 25.61 ms         | 79.47 ms               |
-| false                             | 36.22 ms         | 67.19 ms               |
+| `WatchedVideosCountsCache` enabled  | GET `/playlists`  | PUT `/watch-histories`  |
+|-------------------------------------|-------------------|-------------------------|
+| true                                | 16.854 ms         | 10.024 ms               |
+| false                               | 43.430 ms         | 7.108 ms                |
